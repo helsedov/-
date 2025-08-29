@@ -1,0 +1,142 @@
+}
+        .audio-player input[type="range"] {
+            flex: 1;
+            max-width: 200px;
+            accent-color: #ff6b6b;
+        }
+        .audio-player .volume {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            color: #555;
+            font-weight: 500;
+        }
+        .btn {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 13px 28px;
+            font-size: 1.05rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 12px;
+            box-shadow: 0 3px 10px rgba(255, 107, 107, 0.2);
+        }
+        .btn:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 14px rgba(255, 107, 107, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="audio/music.mp3" type="audio/mpeg">
+        Ваш браузер не поддерживает аудио.
+    </audio>
+
+    <script>
+        for (let i = 0; i < 15; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            dot.style.left = Math.random() * 100 + 'vw';
+            dot.style.top = Math.random() * 100 + 'vh';
+            dot.style.animationDelay = Math.random() * 6 + 's';
+            document.body.appendChild(dot);
+        }
+    </script>
+
+    <div class="audio-player">
+        <button id="playPause">▶️</button>
+        <div class="volume">
+            🔊
+            <input type="range" id="volume" min="0" max="1" step="0.05" value="0.5">
+        </div>
+    </div>
+
+    <div class="container">
+        <nav>
+            <a href="index.html">📜 Стихи</a>
+            <a href="card.html">📇 Визитка</a>
+            <a href="chat.html">💬 Чат</a>
+        </nav>
+
+        <h1>Стихи</h1>
+        <div id="poem">
+            <p>Я помню чудное мгновенье:<br>
+            Передо мной явилась ты,<br>
+            Как мимолётное виденье,<br>
+            Как гений чистой красоты.</p>
+        </div>
+        <button class="btn" id="togglePoem">Следующее стихотворение</button>
+    </div>
+
+    <script>
+        const bgMusic = document.getElementById('bgMusic');
+        const playPauseBtn = document.getElementById('playPause');
+        const volumeControl = document.getElementById('volume');
+
+        if (localStorage.getItem('musicVolume')) {
+            bgMusic.volume = parseFloat(localStorage.getItem('musicVolume'));
+        } else {
+            bgMusic.volume = 0.5;
+        }
+        volumeControl.value = bgMusic.volume;
+
+        volumeControl.addEventListener('input', () => {
+            bgMusic.volume = volumeControl.value;
+            localStorage.setItem('musicVolume', bgMusic.volume);
+        });
+
+        playPauseBtn.addEventListener('click', async () => {
+            if (bgMusic.paused) {
+                const playPromise = bgMusic.play();
+                if (playPromise !== undefined) {
+                    try {
+                        await playPromise;
+                        playPauseBtn.textContent = '⏸️';
+                        localStorage.setItem('musicPlaying', 'true');
+                    } catch (error) {
+                        alert('Нажми на кнопку ▶️, чтобы включить музыку.');
+                    }
+                }
+            } else {
+                bgMusic.pause();
+                playPauseBtn.textContent = '▶️';
+                localStorage.setItem('musicPlaying', 'false');
+            }
+        });
+
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('musicPlaying') === 'true') {
+                playPauseBtn.textContent = '⏸️';
+            } else {
+                playPauseBtn.textContent = '▶️';
+            }
+        });
+
+        const poems = [
+            <p>Я помню чудное мгновенье:<br>
+            Передо мной явилась ты,<br>
+            Как мимолётное виденье,<br>
+            Как гений чистой красоты.</p>,
+           <p>У лукоморья дуб зелёный;<br>
+            Златая цепь на дубе том:<br>
+            И днём и ночью кот учёный<br>
+            Всё ходит по цепи кругом.</p>
+        ];
+
+        let currentIndex = 0;
+        const poemElement = document.getElementById('poem');
+        const button = document.getElementById('togglePoem');
+
+        button.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % poems.length;
+            poemElement.innerHTML = poems[currentIndex];
+        });
+    </script>
+</body>
+</html>
